@@ -1,0 +1,90 @@
+services:
+  authentication-api:
+    build:
+      context: ../AuthenticationApi
+      dockerfile: deployment/Dockerfile
+    container_name: container-authentication-api
+    environment:
+      - DB_HOST=db-users
+      - DB_PORT=5432
+      - DB_NAME=users
+      - DB_USER=${DB_USERS_USER}
+      - DB_PASSWORD=${DB_USERS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET_KEY}
+      - JWT_EXPIRATION=${JWT_EXPIRATION_MS}
+      - CORS=http://application-api:8090
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - crediyanet
+
+  db-users:
+    image: postgres:13.22
+    container_name: container-db-users
+    environment:
+      POSTGRES_USER: ${DB_USERS_USER}
+      POSTGRES_PASSWORD: ${DB_USERS_PASSWORD}
+      POSTGRES_DB: users
+    volumes:
+      - data-users:/var/lib/postgresql/data      
+      - ./init-users.sql:/docker-entrypoint-initdb.d/init.sql
+    # ports:
+    #   - "5432:5432"
+    healthcheck:          
+      test: ["CMD-SHELL", "pg_isready -U postgres -d users"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crediyanet
+
+  application-api:
+    build:
+      context: ../ApplicationApi
+      dockerfile: deployment/Dockerfile
+    container_name: container-application-api
+    environment:
+      - DB_HOST=db-applications
+      - DB_PORT=5432
+      - DB_NAME=applications
+      - DB_USER=${DB_APPLICATIONS_USER}
+      - DB_PASSWORD=${DB_APPLICATIONS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET_KEY}
+      - AUTH_API_URL=http://authentication-api:8080
+      - ADMIN_EMAIL=${ADMIN_USER_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_USER_PASSWORD}
+      - CORS=http://authentication-api:8080
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+    networks:
+      - crediyanet
+
+  db-applications:
+    image: postgres:13.22
+    container_name: container-db-applications
+    environment:
+      POSTGRES_USER: ${DB_APPLICATIONS_USER}
+      POSTGRES_PASSWORD: ${DB_APPLICATIONS_PASSWORD}
+      POSTGRES_DB: applications
+    volumes:
+      - data-applications:/var/lib/postgresql/data
+      - ./init-applications.sql:/docker-entrypoint-initdb.d/init.sql
+    # ports:
+    #   - "5433:5432"
+    healthcheck:          
+      test: ["CMD-SHELL", "pg_isready -U postgres -d applications"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crediyanet
+
+volumes:
+  data-users:
+  data-applications:
+
+networks:
+  crediyanet:
+    driver: bridge
