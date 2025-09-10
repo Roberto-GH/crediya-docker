@@ -21,7 +21,8 @@ VALUES
     ('Aprobada', 'La solicitud de crédito ha sido aprobada.'),
     ('Rechazada', 'La solicitud de crédito ha sido rechazada.'),
     ('En proceso', 'La solicitud está siendo procesada.'),
-    ('En revisión manual', 'La solicitud está siendo revisada manualmente por un asesor.');
+    ('En revisión manual', 'La solicitud está siendo revisada manualmente por un asesor.'),
+    ('Terminado', 'Un prestamo aprobado que ya fue pagado en su totalidad.');
 
 -- Table: public.type_of_loan                                                                                                
 -- DROP TABLE IF EXISTS public.type_of_loan;     

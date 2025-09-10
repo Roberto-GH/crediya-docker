@@ -54,7 +54,13 @@ services:
       - AUTH_API_URL=http://authentication-api:8080
       - ADMIN_EMAIL=${ADMIN_USER_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_USER_PASSWORD}
-      - CORS=http://authentication-api:8080
+      - CORS=http://authentication-api:8080,http://localhost:8090
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - QUEUE_URL_NOTIFICATION=${QUEUE_URL_NOTIFICATION}
+      - QUEUE_URL_VALIDATION=${QUEUE_URL_VALIDATION}
+      - QUEUE_URL_LISTENER=${QUEUE_URL_LISTENER}
     ports:
       - "8090:8090"
     restart: unless-stopped
