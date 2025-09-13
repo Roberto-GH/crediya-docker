@@ -60,6 +60,7 @@ services:
       - AWS_REGION=${AWS_REGION}
       - QUEUE_URL_NOTIFICATION=${QUEUE_URL_NOTIFICATION}
       - QUEUE_URL_VALIDATION=${QUEUE_URL_VALIDATION}
+      - QUEUE_URL_REPORT=${QUEUE_URL_LISTENER_REPORT}
       - QUEUE_URL_LISTENER=${QUEUE_URL_LISTENER}
     ports:
       - "8090:8090"
@@ -84,6 +85,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - crediyanet
+
+  report-api:
+    build:
+      context: ../ReportsApi
+      dockerfile: deployment/Dockerfile
+    container_name: container-report-api
+    environment:
+      - DYNAMO_DB_HOST=${DYNAMO_DB_HOST} 
+      - JWT_SECRET=${JWT_SECRET_KEY}
+      - AUTH_API_URL=http://authentication-api:8080
+      - ADMIN_EMAIL=${ADMIN_USER_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_USER_PASSWORD}
+      - CORS=http://authentication-api:8080,http://localhost:8070
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID_REPORTS}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY_REPORTS}
+      - AWS_REGION=${AWS_REGION}
+      - QUEUE_URL_LISTENER_REPORT=${QUEUE_URL_LISTENER_REPORT}
+      - SPRING_PROFILES_ACTIVE=pdn
+    ports:
+      - "8070:8070"
+    restart: unless-stopped
     networks:
       - crediyanet
 
